@@ -9,17 +9,18 @@ import { Chart } from "chart.js/auto";
 })
 export class AppComponent {
   public chart: Chart;
+  private _colors = ['#ff0000', '#00ff00', '#0000ff'];
   ngOnInit() {
     this.chart = new Chart("canvas", {
       type: "scatter",
       data: this._getAnomaliesData(),
       options: {
+        animation: false,
         plugins: {
           legend: {
-            display: true,
-            position: 'right'
+            display: false
           }
-        }
+        },
       }
     });
   }
@@ -28,24 +29,42 @@ export class AppComponent {
     return Math.trunc(Math.random() * (max + 1 - min) + min);
   }
 
+  private _getRandomColor(): string {
+    return this._colors[this._getRandomNumber(0, 2)];
+  }
+
   private _getAnomaliesData() {
     const data = [];
-    for (let i = 0; i < 1000; i++) {
-      data.push({x: this._getRandomNumber(20, 30), y: this._getRandomNumber(-10, 0)});
+    for (let i = 0; i < 20000; i++) {
+      data.push({
+        x: this._getRandomNumber(0, 1000),
+        y: this._getRandomNumber(0, 1000),
+        color: this._getRandomColor()
+      });
     }
+
+    const colors: Map<string, any[]> = new Map<string, any[]>();
+    data.forEach(point => {
+      if (!colors.has(point.color)) {
+        colors.set(point.color, []);
+      }
+      const a = colors.get(point.color);
+      a.push({x: point.x,  y: point.y});
+    })
+
+    console.log('data', data);
 
     const anomalies = {
       labels: [
         "NIC anomalies"
       ],
-      datasets: [
-        {
-          label: "H - Transponder...",
-          data,
-          borderWidth: 1,
-          backgroundColor: "#407ab3"
-        }
-      ],
+      datasets: Array.from(colors.keys()).map(key => ({
+        label: "H - Transponder...",
+        data: colors.get(key),
+        pointBackgroundColor: key,
+        borderWidth: 1
+      }))
+      ,
     };
 
     return anomalies;
