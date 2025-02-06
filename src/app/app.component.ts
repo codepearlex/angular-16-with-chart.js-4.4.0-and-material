@@ -12,13 +12,13 @@ export class AppComponent {
   private _colors = ['#ff0000', '#00ff00', '#0000ff'];
   ngOnInit() {
     this.chart = new Chart("canvas", {
-      type: "scatter",
-      data: this._getAnomaliesData(),
+      type: "bar",
+      data: this._getCnsCapData(),
       options: {
         animation: false,
         plugins: {
           legend: {
-            display: false
+            display: true
           }
         },
       }
@@ -64,6 +64,53 @@ export class AppComponent {
         pointBackgroundColor: key,
         borderWidth: 1
       }))
+      ,
+    };
+
+    return anomalies;
+  }
+
+  private _getCnsCapData() {
+    const data = [];
+    for (let i = 0; i < 20000; i++) {
+      data.push({
+        x: this._getRandomNumber(0, 1000),
+        y: this._getRandomNumber(0, 1000),
+        color: this._getRandomColor()
+      });
+    }
+
+    const colors: Map<string, any[]> = new Map<string, any[]>();
+    data.forEach(point => {
+      if (!colors.has(point.color)) {
+        colors.set(point.color, []);
+      }
+      const a = colors.get(point.color);
+      a.push({x: point.x,  y: point.y});
+    })
+
+    console.log('data', data);
+
+    const anomalies = {
+      labels: [
+        "Cap1", "Cap2", "Cap3"
+      ],
+      datasets: [{
+        label: 'Total',
+        data: [10,15,13],
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        borderWidth: 1
+      },{
+        label: '0-5',
+        data: [9,13,11],
+        backgroundColor: 'rgba(250,150,0,0.6)',
+        borderWidth: 1
+      },{
+        label: '21-25',
+        data: [3,4,2],
+        backgroundColor: 'rgba(100,150,200,0.6)',
+        borderWidth: 1
+      }]
       ,
     };
 
